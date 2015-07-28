@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Site Safety Checker</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <div class="centered">
+        <h1>Site Safety Checker</h1>
+        <form action="{{ url_for('check') }}" class="pure-form center">
+          <input type="text" name="site" placeholder="URL">
+          <input type="submit" class="pure-button pure-button-primary">
+        </form>
+      </div>
+      {% block results %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
