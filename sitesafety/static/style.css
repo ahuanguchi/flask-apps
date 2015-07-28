@@ -28,6 +28,10 @@ ul {
   margin-top: 40px;
 }
 
+.warning {
+  color: #bf0000;
+}
+
 .container {
   padding-right: 15px;
   padding-left: 15px;

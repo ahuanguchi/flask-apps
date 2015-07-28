@@ -13,10 +13,12 @@ def parse_google_sb(site):
     r = requests.get(page)
     tree = html.fromstring(r.content)
     tree.make_links_absolute('https://www.google.com')
+    url = tree.xpath('//h3/text()', smart_strings=False)[0].rsplit(' ', 1)[1]
     blockquotes = [html.tostring(x, encoding='unicode')
                    for x in tree.xpath('//blockquote')]
     result = {
         'page': page,
+        'url': url,
         'status': blockquotes[0],
         'summary': blockquotes[1],
         'intermediary': blockquotes[2],
@@ -49,7 +51,7 @@ def parse_norton_sw(site):
         result['community'] = etree.tostring(norton_community, method='html',
                                              encoding='unicode')
     except IndexError:
-        result['url'] = 'Rate limit exceeded.'
+        result['summary'] = "None"
     return result
 
 
@@ -61,6 +63,8 @@ def index():
 @app.route('/check')
 def check():
     site = request.args['site']
+    if '.' not in site:
+        return render_template('index.html', warning=True)
     sb = parse_google_sb(site)
     sw = parse_norton_sw(site)
     template = render_template(

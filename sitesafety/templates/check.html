@@ -4,33 +4,36 @@
   <h2 class="centered extraspaced">Results for {{ site }}</h2>
   <hr>
   <div id="google-safe-browsing">
-    <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing</a></h3>
+    <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing &ndash; {{ sb.url }}</a></h3>
     <h4><p>Status listing:</p></h4>
     {{ sb.status|safe }}
     <h4><p>Google's summary:</p></h4>
     {{ sb.summary|safe }}
-    <h4><p>Intermediary in malware distribution?</p></h4>
+    <h4><p>Distributed malware?</p></h4>
     {{ sb.intermediary|safe }}
     <h4><p>Hosted malware?</p></h4>
     {{ sb.hosted|safe }}
   </div>
   <hr>
   <div id="norton-safe-web">
-    <h3><a href="{{ sw.page }}" target="_blank">Norton Safe Web</a></h3>
-    <h4><p>Domain checked:</p></h4>
-    <blockquote>{{ sw.url }}</blockquote>
+    <h3><a href="{{ sw.page }}" target="_blank">Norton Safe Web &ndash; {{ sw.url }}</a></h3>
     <h4><p>Rating:</p></h4>
     <blockquote>{{ sw.ico }}</blockquote>
     <h4><p>Summary:</p></h4>
-    <blockquote>{{ sw.summary|safe }}</blockquote>
-    <h4><p>Community rating:</p></h4>
+    <blockquote>
+      {{ sw.summary|safe }}
+      {% if sw.summary == 'None' and sw.ico != 'Untested' %}
+        &ndash; If this was caused by rate limiting, you can click on the link above to visit Norton's report manually.
+      {% endif %}
+    </blockquote>
+    <h4><p>Community rating (out of 5):</p></h4>
     <blockquote>
       {% if '0.0' not in sw.community %}
         {{ sw.community|safe }}
       {% else %}
-        Not yet rated.
+        Not yet rated
       {% endif %}
-      {% if 'exceeded' not in sw.url %}
+      {% if sw.summary != 'None' %}
         <p><a href="http://safeweb.norton.com/reviews?url={{ sw.url|urlencode }}">View community reviews</a></p>
       {% endif %}
     </blockquote>

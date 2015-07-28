@@ -15,7 +15,10 @@
         <p>Get a single-page summary of a website's safety from Google Safe Browsing and Norton Safe Web.</p>
         <form action="{{ url_for('check') }}" class="pure-form center">
           <input type="text" name="site" placeholder="URL">
-          <input type="submit" class="pure-button pure-button-primary">
+          <input type="submit" class="pure-button pure-button-primary" value="Search">
+          {% if warning %}
+            <p class="warning">Please enter a URL that can be processed.<p>
+          {% endif %}
         </form>
       </div>
       {% block results %}
