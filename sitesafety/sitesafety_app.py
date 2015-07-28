@@ -29,9 +29,9 @@ def parse_norton_sw(site):
     result = {}
     # YQL for requests outside of PythonAnywhere's free user whitelist
     url = 'https://query.yahooapis.com/v1/public/yql?q='
-    query_url = 'http://safeweb.norton.com/report/show?url=' + site
-    result['page'] = query_url
-    query = quote('select * from html where url="%s"' % query_url, safe='')
+    query_url = 'http://safeweb.norton.com/report/show?url='
+    result['page'] = query_url + quote(site, safe='')
+    query = quote('select * from html where url="%s"' % (query_url + site), safe='')
     page = url + query
     r = requests.get(page)
     # parse XML instead of HTML
@@ -40,7 +40,7 @@ def parse_norton_sw(site):
     result['url'] = norton_url
     norton_ico = tree.xpath('//div[@class="big_rating_wrapper"]/img/@alt',
                             smart_strings=False)[0]
-    result['ico'] = norton_ico.replace('ico', '').replace('NSec', 'Norton Sec')
+    result['ico'] = norton_ico.replace('ico', '').replace('NSec', 'Norton sec')
     norton_summary = tree.xpath('//div[@class="span10"]')[0]
     result['summary'] = etree.tostring(norton_summary, method='html',
                                        encoding='unicode')

@@ -5,12 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link href="http://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
     <div class="container">
       <div class="centered">
         <h1>Site Safety Checker</h1>
+        <p>Get a single-page summary of a website's safety from Google Safe Browsing and Norton Safe Web.</p>
         <form action="{{ url_for('check') }}" class="pure-form center">
           <input type="text" name="site" placeholder="URL">
           <input type="submit" class="pure-button pure-button-primary">
@@ -18,6 +20,8 @@
       </div>
       {% block results %}
       {% endblock %}
+      <hr>
+      <p><a href="https://github.com/ahuanguchi/flask-apps/tree/master/sitesafety" target="_blank">Source code</a></p>
     </div>
   </body>
 </html>
