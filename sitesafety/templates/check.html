@@ -28,9 +28,12 @@
       {% if '0.0' not in sw.community %}
         {{ sw.community|safe }}
       {% else %}
-        Not yet rated
+        Not yet rated.
       {% endif %}
-      <p><a href="http://safeweb.norton.com/reviews?url={{ sw.url|urlencode }}">View community reviews</a></p>
+      {% if 'exceeded' not in sw.url %}
+        <p><a href="http://safeweb.norton.com/reviews?url={{ sw.url|urlencode }}">View community reviews</a></p>
+      {% endif %}
     </blockquote>
   </div>
+  <hr>
 {% endblock %}

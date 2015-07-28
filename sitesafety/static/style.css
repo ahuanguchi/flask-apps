@@ -12,6 +12,10 @@ a:hover {
   text-decoration: underline;
 }
 
+hr {
+  margin-top: 20px;
+}
+
 ul {
   padding-left: 20px;
 }
@@ -46,5 +50,12 @@ ul {
 @media (min-width: 1200px) {
   .container {
     width: 1170px;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  input[name="site"] {
+    margin-right: auto;
+    margin-left: auto;
   }
 }
