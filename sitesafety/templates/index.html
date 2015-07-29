@@ -18,12 +18,13 @@
         {% endif %}
         <form action="{{ url_for('check') }}" class="pure-form">
           <input type="text" name="site" placeholder="URL" autofocus>
-          <input type="submit" class="pure-button pure-button-primary" value="Look up">
+          <input type="submit" class="pure-button pure-button-primary" value="Look up" id="submit">
         </form>
       </div>
       {% block results %}
       {% endblock %}
       <p class="centered"><a href="https://github.com/ahuanguchi/flask-apps/tree/master/sitesafety" target="_blank">Source code</a></p>
     </div>
+    <script src="{{ url_for('static', filename='loading.js') }}"></script>
   </body>
 </html>
