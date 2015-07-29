@@ -4,10 +4,11 @@ html {
 }
 
 a {
-  color: #003fff;
+  color: #008fcf;
   text-decoration: none;
 }
 
+a:active,
 a:hover {
   text-decoration: underline;
 }
@@ -18,6 +19,10 @@ hr {
 
 ul {
   padding-left: 20px;
+}
+
+#submit {
+  border: 1px solid #bfbfbf;
 }
 
 .centered {
