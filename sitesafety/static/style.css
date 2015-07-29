@@ -68,3 +68,8 @@ ul {
     margin-left: auto;
   }
 }
+
+.pure-form input:focus:invalid {
+    border-color: #129FEA;
+    color: inherit;
+}

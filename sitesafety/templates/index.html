@@ -16,8 +16,8 @@
         {% if warning %}
           <p class="warning">Please enter a URL that can be processed by both Google Safe Browsing and Norton Safe Web.<p>
         {% endif %}
-        <form action="{{ url_for('check') }}" class="pure-form">
-          <input type="text" name="site" placeholder="URL" autofocus autocorrect="off" autocomplete="off" autocapitalize="none" spellcheck="false">
+        <form action="{{ url_for('check') }}" class="pure-form" novalidate>
+          <input type="url" name="site" placeholder="URL" autofocus autocorrect="off" autocomplete="off" autocapitalize="none" spellcheck="false">
           <input type="submit" class="pure-button" value="Look up" id="submit">
         </form>
       </div>
