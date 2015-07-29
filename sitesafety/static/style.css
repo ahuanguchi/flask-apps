@@ -33,6 +33,10 @@ ul {
   margin-top: 40px;
 }
 
+.top {
+  margin-top: 80px;
+}
+
 .warning {
   color: #bf0000;
 }
