@@ -17,7 +17,7 @@
           <p class="warning">Please enter a URL that can be processed by both Google Safe Browsing and Norton Safe Web.<p>
         {% endif %}
         <form action="{{ url_for('check') }}" class="pure-form">
-          <input type="text" name="site" placeholder="URL">
+          <input type="text" name="site" placeholder="URL" autofocus>
           <input type="submit" class="pure-button pure-button-primary" value="Look up">
         </form>
       </div>

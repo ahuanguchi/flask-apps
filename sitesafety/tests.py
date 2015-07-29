@@ -7,25 +7,33 @@ class SiteTestCase(unittest.TestCase):
     
     def setUp(self):
         sitesafety_app.app.config['TESTING'] = True
-        self.app = local_app.app.test_client()
+        self.app = sitesafety_app.app.test_client()
     
     def test_request_index(self):
         with self.app.head('/') as resp:
             self.assertEqual(resp.status_code, 200)
     
-    # including rate limit message
     def test_valid_search(self):
-        pass
-    
-    # ' ', no '.'
-    def test_invalid_search(self):
-        pass
+        with self.app.head('/check?site=nicovideo.jp') as resp:
+            self.assertEqual(resp.status_code, 200)
+        with self.app.head('/check?site=http://www.nicovideo.jp/') as resp:
+            self.assertEqual(resp.status_code, 200)
     
     def test_valid_but_strange_search(self):
-        pass
+        with self.app.head('/check?site=nicovideo.j') as resp:
+            self.assertEqual(resp.status_code, 200)
+    
+    def test_invalid_search(self):
+        with self.app.head('/check?site=nico video.') as resp:
+            self.assertEqual(resp.status_code, 200)
+        with self.app.head('/check?site=nicovideo') as resp:
+            self.assertEqual(resp.status_code, 200)
     
     def test_no_arguments(self):
-        pass
+        with self.app.head('/check') as resp:
+            self.assertEqual(resp.status_code, 200)
+        with self.app.head('/check?site=') as resp:
+            self.assertEqual(resp.status_code, 200)
 
 
 if __name__ == '__main__':
