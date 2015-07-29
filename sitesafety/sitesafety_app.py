@@ -1,9 +1,15 @@
 import requests
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 from lxml import etree, html
 from urllib.parse import quote
 
 app = Flask(__name__)
+
+
+def fix_link(href):
+    if '?' not in href:
+        return href
+    return url_for('check') + '?' + href.split('?')[1]
 
 
 def parse_google_sb(site):
@@ -12,7 +18,7 @@ def parse_google_sb(site):
     page = url + query
     r = requests.get(page)
     tree = html.fromstring(r.content)
-    tree.make_links_absolute('https://www.google.com')
+    tree.rewrite_links(fix_link, False)
     url = tree.xpath('//h3/text()', smart_strings=False)[0].rsplit(' ', 1)[1]
     blockquotes = [html.tostring(x, encoding='unicode')
                    for x in tree.xpath('//blockquote')]
@@ -51,7 +57,7 @@ def parse_norton_sw(site):
         result['community'] = etree.tostring(norton_community, method='html',
                                              encoding='unicode')
     except IndexError:
-        result['summary'] = "None"
+        result['summary'] = 'None'
     return result
 
 
@@ -62,18 +68,12 @@ def index():
 
 @app.route('/check')
 def check():
-    site = request.args['site']
-    if '.' not in site:
+    site = request.args.get('site')
+    if not site or '.' not in site or ' ' in site:
         return render_template('index.html', warning=True)
     sb = parse_google_sb(site)
     sw = parse_norton_sw(site)
-    template = render_template(
-        'check.html',
-        site=site,
-        sb=sb,
-        sw=sw
-    )
-    return template
+    return render_template('check.html', site=site, sb=sb, sw=sw)
 
 
 if __name__ == '__main__':
