@@ -33,18 +33,17 @@ ul {
   margin-top: 40px;
 }
 
-.top {
-  margin-top: 80px;
-}
-
 .warning {
   color: #bf0000;
 }
 
+.pure-form input:focus:invalid {
+    border-color: #129FEA;
+    color: inherit;
+}
+
 .container {
-  padding-bottom: 15px;
-  padding-right: 15px;
-  padding-left: 15px;
+  padding: 15px;
   margin-right: auto;
   margin-left: auto;
 }
@@ -67,6 +66,12 @@ ul {
   }
 }
 
+@media (min-height: 600px) {
+  .top {
+    margin-top: 80px;
+  }
+}
+
 @media only screen and (max-width: 480px) {
   input[name="site"] {
     margin-right: auto;
@@ -74,7 +79,3 @@ ul {
   }
 }
 
-.pure-form input:focus:invalid {
-    border-color: #129FEA;
-    color: inherit;
-}
