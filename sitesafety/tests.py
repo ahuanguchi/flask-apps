@@ -1,3 +1,4 @@
+import os
 import requests
 import unittest
 from lxml import html
@@ -17,9 +18,17 @@ class SiteTestCase(unittest.TestCase):
             data = resp.get_data(as_text=True)
         return data
     
+    @classmethod
+    def setUpClass(cls):
+        cls.root = sitesafety_app.app.root_path
+        cls.cache = sitesafety_app.cache
+    
     def setUp(self):
         sitesafety_app.app.config['TESTING'] = True
         self.app = sitesafety_app.app.test_client()
+    
+    def tearDown(self):
+        self.cache.clear()
     
     def test_request_index(self):
         page = self.get_and_assert_status_code('/', 200)
@@ -33,7 +42,7 @@ class SiteTestCase(unittest.TestCase):
                 self.assertEqual(r.status_code, 200, link)
     
     def test_valid_search(self):
-        self.assert_status_code_200('/check?site=nicovideo.jp')
+        self.assert_status_code_200('/check?site=youtube.com')
         self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
     
     def test_valid_but_strange_search(self):
@@ -50,6 +59,11 @@ class SiteTestCase(unittest.TestCase):
     def test_not_found(self):
         page = self.get_and_assert_status_code('/blah', 404)
         self.assertIn('Home', page)
+    
+    def test_response_cache(self):
+        self.assert_status_code_200('/check?site=www.nicovideo.jp')
+        self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
+        self.assertEqual(len(os.listdir(os.path.join(self.root, 'cache'))), 1)
 
 
 if __name__ == '__main__':

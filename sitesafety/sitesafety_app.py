@@ -1,9 +1,12 @@
+import os
 import requests
 from flask import Flask, render_template, request, url_for
 from lxml import etree, html
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
+from werkzeug.contrib.cache import FileSystemCache
 
 app = Flask(__name__)
+cache = FileSystemCache(os.path.join(app.root_path, 'cache'))
 
 
 def fix_link(href):
@@ -71,9 +74,17 @@ def check():
     site = request.args.get('site')
     if not site or '.' not in site or ' ' in site:
         return render_template('index.html', warning=True)
-    sb = parse_google_sb(site)
-    sw = parse_norton_sw(site)
-    return render_template('check.html', site=site, sb=sb, sw=sw)
+    domain = urlparse(site).netloc
+    if not domain:
+        domain = urlparse('//' + site).netloc
+    response_data = cache.get(domain)
+    if not response_data:
+        sb = parse_google_sb(domain)
+        sw = parse_norton_sw(domain)
+        response_data = render_template('check.html', domain=domain, sb=sb, sw=sw)
+        if 'rate limiting' not in response_data:
+            cache.set(domain, response_data, timeout=86400)
+    return response_data
 
 
 @app.errorhandler(404)
@@ -82,5 +93,6 @@ def not_found(e):
 
 
 if __name__ == '__main__':
+    cache.clear()
     app.debug = 'True'
     app.run()
