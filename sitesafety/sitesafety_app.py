@@ -1,6 +1,5 @@
 import os
 import requests
-import time
 from eventlet import GreenPool
 from eventlet.green.urllib import request as eventlet_request
 from flask import copy_current_request_context, Flask, render_template, request
@@ -21,7 +20,6 @@ def fix_link(href):
 
 
 def parse_google_sb(site):
-    start = time.time()
     url = 'https://www.google.com/safebrowsing/diagnostic?site='
     query = quote(site, safe='')
     page = url + query
@@ -39,12 +37,10 @@ def parse_google_sb(site):
         'intermediary': blockquotes[2],
         'hosted': blockquotes[3]
     }
-    print('sb: %s' % (time.time() - start))
     return result
 
 
 def parse_norton_sw(site):
-    start = time.time()
     result = {}
     try:
         # YQL for requests outside of PythonAnywhere's free user whitelist
@@ -69,13 +65,7 @@ def parse_norton_sw(site):
                                              encoding='unicode')
     except IndexError:
         result['summary'] = 'None'
-    print('sw: %s' % (time.time() - start))
     return result
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 
 def look_up(func_id, domain):
@@ -85,6 +75,11 @@ def look_up(func_id, domain):
         else:
             result = parse_norton_sw(domain)
         return result
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
 @app.route('/check')
@@ -97,9 +92,7 @@ def check():
         domain = urlparse('//' + site).netloc
     response_data = cache.get(domain)
     if not response_data:
-        start = time.time()
         sb, sw = pool.starmap(look_up, ((0, domain), (1, domain)))
-        print(time.time() - start)
         response_data = render_template('check.html', domain=domain, sb=sb, sw=sw)
         if 'rate limiting' not in response_data:
             cache.set(domain, response_data, timeout=43200)     # 12 hours
