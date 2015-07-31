@@ -1,6 +1,7 @@
 import os
-import requests
 import unittest
+from eventlet import GreenPool
+from eventlet.green.urllib import request as eventlet_request
 from lxml import html
 
 import sitesafety_app
@@ -18,12 +19,19 @@ class SiteTestCase(unittest.TestCase):
             data = resp.get_data(as_text=True)
         return data
     
+    def external_assert_status_code_200(self, url):
+        resp = eventlet_request.urlopen(url)
+        self.assertEqual(resp.getcode(), 200)
+        return True
+    
     @classmethod
     def setUpClass(cls):
         sitesafety_app.app.config['TESTING'] = True
         sitesafety_app.app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
         cls.root = sitesafety_app.app.root_path
         cls.cache = sitesafety_app.cache
+        cls.cache.clear()
+        cls.pool = GreenPool()
     
     def setUp(self):
         self.app = sitesafety_app.app.test_client()
@@ -34,13 +42,15 @@ class SiteTestCase(unittest.TestCase):
     def test_request_index(self):
         page = self.get_and_assert_status_code('/', 200)
         tree = html.fromstring(page)
+        external_links = []
         for result in tree.iterlinks():
             link = result[2]
             if not link.startswith('http'):
                 self.assert_status_code_200(link)
             else:
-                r = requests.head(link, headers={'Connection': 'close'})
-                self.assertEqual(r.status_code, 200, link)
+                external_links.append(link)
+        feedback = self.pool.imap(self.external_assert_status_code_200, external_links)
+        self.assertGreater(len([x for x in feedback]), 0)
     
     def test_valid_search(self):
         self.assert_status_code_200('/check?site=youtube.com')
@@ -52,6 +62,7 @@ class SiteTestCase(unittest.TestCase):
     def test_invalid_search(self):
         self.assert_status_code_200('/check?site=nico video.')
         self.assert_status_code_200('/check?site=nicovideo')
+        self.assert_status_code_200('/check?site=n.i')
     
     def test_no_arguments(self):
         self.assert_status_code_200('/check')

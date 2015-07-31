@@ -1,5 +1,4 @@
 import os
-import requests
 from eventlet import GreenPool
 from eventlet.green.urllib import request as eventlet_request
 from flask import copy_current_request_context, Flask, render_template, request
@@ -85,7 +84,7 @@ def index():
 @app.route('/check')
 def check():
     site = request.args.get('site')
-    if not site or '.' not in site or ' ' in site:
+    if not site or '.' not in site or ' ' in site or len(site) < 4:
         return render_template('index.html', warning=True)
     domain = urlparse(site).netloc
     if not domain:
