@@ -1,26 +1,32 @@
 import os
 import requests
-from flask import Flask, render_template, request, url_for
+import time
+from eventlet import GreenPool
+from eventlet.green.urllib import request as eventlet_request
+from flask import copy_current_request_context, Flask, render_template, request
 from lxml import etree, html
+from socket import gethostname
 from urllib.parse import quote, urlparse
 from werkzeug.contrib.cache import FileSystemCache
 
 app = Flask(__name__)
 cache = FileSystemCache(os.path.join(app.root_path, 'cache'))
+pool = GreenPool()
 
 
 def fix_link(href):
     if '?' not in href:
         return href
-    return url_for('check') + '?' + href.split('?')[1]
+    return '/check?' + href.split('?')[1]
 
 
 def parse_google_sb(site):
+    start = time.time()
     url = 'https://www.google.com/safebrowsing/diagnostic?site='
     query = quote(site, safe='')
     page = url + query
-    r = requests.get(page)
-    tree = html.fromstring(r.content)
+    data = eventlet_request.urlopen(page).read()
+    tree = html.fromstring(data)
     tree.rewrite_links(fix_link, False)
     url = tree.xpath('//h3/text()', smart_strings=False)[0].rsplit(' ', 1)[1]
     blockquotes = [html.tostring(x, encoding='unicode')
@@ -33,10 +39,12 @@ def parse_google_sb(site):
         'intermediary': blockquotes[2],
         'hosted': blockquotes[3]
     }
+    print('sb: %s' % (time.time() - start))
     return result
 
 
 def parse_norton_sw(site):
+    start = time.time()
     result = {}
     try:
         # YQL for requests outside of PythonAnywhere's free user whitelist
@@ -45,9 +53,9 @@ def parse_norton_sw(site):
         result['page'] = query_url + quote(site, safe='')
         query = quote('select * from html where url="%s"' % (query_url + site), safe='')
         page = url + query
-        r = requests.get(page)
+        data = eventlet_request.urlopen(page).read()
         # parse XML instead of HTML
-        tree = etree.fromstring(r.content)
+        tree = etree.fromstring(data)
         norton_url = tree.xpath('//a[@class="nolink"]/@title', smart_strings=False)[0]
         result['url'] = norton_url
         norton_ico = tree.xpath('//div[@class="big_rating_wrapper"]/img/@alt',
@@ -61,12 +69,22 @@ def parse_norton_sw(site):
                                              encoding='unicode')
     except IndexError:
         result['summary'] = 'None'
+    print('sw: %s' % (time.time() - start))
     return result
 
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+def look_up(func_id, domain):
+    with app.app_context():
+        if func_id == 0:
+            result = parse_google_sb(domain)
+        else:
+            result = parse_norton_sw(domain)
+        return result
 
 
 @app.route('/check')
@@ -79,11 +97,12 @@ def check():
         domain = urlparse('//' + site).netloc
     response_data = cache.get(domain)
     if not response_data:
-        sb = parse_google_sb(domain)
-        sw = parse_norton_sw(domain)
+        start = time.time()
+        sb, sw = pool.starmap(look_up, ((0, domain), (1, domain)))
+        print(time.time() - start)
         response_data = render_template('check.html', domain=domain, sb=sb, sw=sw)
         if 'rate limiting' not in response_data:
-            cache.set(domain, response_data, timeout=86400)
+            cache.set(domain, response_data, timeout=43200)     # 12 hours
     return response_data
 
 
@@ -94,5 +113,6 @@ def not_found(e):
 
 if __name__ == '__main__':
     cache.clear()
-    app.debug = 'True'
-    app.run()
+    if 'liveconsole' not in gethostname():
+        app.debug = 'True'
+        app.run()

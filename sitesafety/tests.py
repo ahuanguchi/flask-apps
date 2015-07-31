@@ -20,11 +20,12 @@ class SiteTestCase(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
+        sitesafety_app.app.config['TESTING'] = True
+        sitesafety_app.app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
         cls.root = sitesafety_app.app.root_path
         cls.cache = sitesafety_app.cache
     
     def setUp(self):
-        sitesafety_app.app.config['TESTING'] = True
         self.app = sitesafety_app.app.test_client()
     
     def tearDown(self):
@@ -45,7 +46,7 @@ class SiteTestCase(unittest.TestCase):
         self.assert_status_code_200('/check?site=youtube.com')
         self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
     
-    def test_valid_but_strange_search(self):
+    def test_strange_valid_search(self):
         self.assert_status_code_200('/check?site=nicovideo.j')
     
     def test_invalid_search(self):
