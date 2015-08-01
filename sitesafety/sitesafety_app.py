@@ -68,12 +68,13 @@ def parse_norton_sw(site):
         tree = html.fromstring(data)
         norton_url = tree.xpath('//a[@class="nolink"]/@title', smart_strings=False)[0]
         result['url'] = norton_url
-        # cache HTML for 12 hours when Safe Web doesn't differentiate between subdomains
         if consider_cache:
+            # cache HTML for 5 minutes when Safe Web doesn't differentiate between subdomains
             if norton_url.count('.') == 1:
-                yql_cache.set(site_key, data, timeout=43200)
+                yql_cache.set(site_key, data, timeout=300)
+            # prevent Safe Web's responses to non-existent subdomains from messing up cache
             else:
-                yql_cache.set(site_key, 'do not cache', timeout=43200)
+                yql_cache.set(site_key, 'do not cache', timeout=31536000)
         norton_ico = tree.xpath('//div[@class="big_rating_wrapper"]/img/@alt',
                                 smart_strings=False)[0]
         result['ico'] = norton_ico.replace('ico', '').replace('NSec', 'Norton sec')
