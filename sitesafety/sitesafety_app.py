@@ -3,7 +3,7 @@ import os
 import time
 from eventlet import GreenPool
 from eventlet.green.urllib import request as eventlet_request
-from flask import copy_current_request_context, Flask, render_template, request
+from flask import Flask, render_template, request
 from lxml import html
 from socket import gethostname
 from urllib.parse import quote, urlparse
@@ -11,6 +11,7 @@ from werkzeug.contrib.cache import FileSystemCache
 
 app = Flask(__name__)
 cache = FileSystemCache(os.path.join(app.root_path, 'cache'))
+yql_cache = FileSystemCache(os.path.join(app.root_path, 'yql_cache'))
 pool = GreenPool()
 
 
@@ -51,10 +52,24 @@ def parse_norton_sw(site):
         result['page'] = query_url + quote(site, safe='')
         query = quote('select * from htmlstring where url="%s"' % (query_url + site), safe='')
         page = url + query + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
-        data = json.loads(eventlet_request.urlopen(page).read().decode('utf-8'))
-        tree = html.fromstring(data['query']['results']['result'])
+        consider_cache = False
+        if site.count('.') == 1:
+            site_key = None
+            data = None
+        else:
+            site_key = '.'.join(site.rsplit('.')[-2:])
+            data = yql_cache.get(site_key)
+        if not data:
+            dct = json.loads(eventlet_request.urlopen(page).read().decode('utf-8'))
+            data = dct['query']['results']['result']
+            if site_key and site[:4] != 'www.':
+                consider_cache = True
+        tree = html.fromstring(data)
         norton_url = tree.xpath('//a[@class="nolink"]/@title', smart_strings=False)[0]
         result['url'] = norton_url
+        # cache HTML when Safe Web doesn't differentiate between subdomains
+        if consider_cache and norton_url.count('.') == 1:
+            yql_cache.set(site_key, data, timeout=43200)        # 12 hours
         norton_ico = tree.xpath('//div[@class="big_rating_wrapper"]/img/@alt',
                                 smart_strings=False)[0]
         result['ico'] = norton_ico.replace('ico', '').replace('NSec', 'Norton sec')
@@ -66,7 +81,7 @@ def parse_norton_sw(site):
                                             encoding='unicode')
     except IndexError:
         result['summary'] = 'None'
-    print(time.time() - start)
+    print('%s: %.4f' % (site, time.time() - start))
     return result
 
 
@@ -108,6 +123,7 @@ def not_found(e):
 
 if __name__ == '__main__':
     cache.clear()
+    yql_cache.clear()
     if 'liveconsole' not in gethostname():
         app.debug = 'True'
         app.run()

@@ -30,7 +30,9 @@ class SiteTestCase(unittest.TestCase):
         sitesafety_app.app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
         cls.root = sitesafety_app.app.root_path
         cls.cache = sitesafety_app.cache
+        cls.yql_cache = sitesafety_app.yql_cache
         cls.cache.clear()
+        cls.yql_cache.clear()
         cls.pool = GreenPool()
     
     def setUp(self):
@@ -38,6 +40,7 @@ class SiteTestCase(unittest.TestCase):
     
     def tearDown(self):
         self.cache.clear()
+        self.yql_cache.clear()
     
     def test_request_index(self):
         page = self.get_and_assert_status_code('/', 200)
@@ -76,6 +79,16 @@ class SiteTestCase(unittest.TestCase):
         self.assert_status_code_200('/check?site=www.nicovideo.jp')
         self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
         self.assertEqual(len(os.listdir(os.path.join(self.root, 'cache'))), 1)
+    
+    def test_yql_cache(self):
+        yql_cache_dir = os.path.join(self.root, 'yql_cache')
+        self.assert_status_code_200('/check?site=translate.google.com')
+        self.assert_status_code_200('/check?site=drive.google.com')
+        self.assertEqual(len(os.listdir(yql_cache_dir)), 0)
+        self.yql_cache.clear()
+        self.assert_status_code_200('/check?site=sitesafety.pythonanywhere.com')
+        self.assert_status_code_200('/check?site=caesarcipher.pythonanywhere.com')
+        self.assertEqual(len(os.listdir(yql_cache_dir)), 1)
 
 
 if __name__ == '__main__':
