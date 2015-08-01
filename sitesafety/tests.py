@@ -88,6 +88,8 @@ class SiteTestCase(unittest.TestCase):
         self.yql_cache.clear()
         self.assert_status_code_200('/check?site=sitesafety.pythonanywhere.com')
         self.assert_status_code_200('/check?site=caesarcipher.pythonanywhere.com')
+        self.assert_status_code_200('/check?site=pythonanywhere.com')
+        self.assert_status_code_200('/check?site=www.pythonanywhere.com')
         self.assertEqual(len(os.listdir(yql_cache_dir)), 1)
 
 

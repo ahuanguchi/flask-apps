@@ -55,7 +55,7 @@ def parse_norton_sw(site):
         consider_cache = False
         if site.count('.') == 1:
             site_key = None
-            data = None
+            data = yql_cache.get(site)
         else:
             site_key = '.'.join(site.rsplit('.')[-2:])
             data = yql_cache.get(site_key)
