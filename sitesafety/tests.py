@@ -20,8 +20,8 @@ class SiteTestCase(unittest.TestCase):
         return data
     
     def external_assert_status_code_200(self, url):
-        resp = eventlet_request.urlopen(url)
-        self.assertEqual(resp.getcode(), 200)
+        with eventlet_request.urlopen(url) as resp:
+            self.assertEqual(resp.getcode(), 200)
         return True
     
     @classmethod

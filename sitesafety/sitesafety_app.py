@@ -1,8 +1,10 @@
+import json
 import os
+import time
 from eventlet import GreenPool
 from eventlet.green.urllib import request as eventlet_request
 from flask import copy_current_request_context, Flask, render_template, request
-from lxml import etree, html
+from lxml import html
 from socket import gethostname
 from urllib.parse import quote, urlparse
 from werkzeug.contrib.cache import FileSystemCache
@@ -40,30 +42,31 @@ def parse_google_sb(site):
 
 
 def parse_norton_sw(site):
+    start = time.time()
     result = {}
     try:
         # YQL for requests outside of PythonAnywhere's free user whitelist
         url = 'https://query.yahooapis.com/v1/public/yql?q='
         query_url = 'http://safeweb.norton.com/report/show?url='
         result['page'] = query_url + quote(site, safe='')
-        query = quote('select * from html where url="%s"' % (query_url + site), safe='')
-        page = url + query
-        data = eventlet_request.urlopen(page).read()
-        # parse XML instead of HTML
-        tree = etree.fromstring(data)
+        query = quote('select * from htmlstring where url="%s"' % (query_url + site), safe='')
+        page = url + query + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
+        data = json.loads(eventlet_request.urlopen(page).read().decode('utf-8'))
+        tree = html.fromstring(data['query']['results']['result'])
         norton_url = tree.xpath('//a[@class="nolink"]/@title', smart_strings=False)[0]
         result['url'] = norton_url
         norton_ico = tree.xpath('//div[@class="big_rating_wrapper"]/img/@alt',
                                 smart_strings=False)[0]
         result['ico'] = norton_ico.replace('ico', '').replace('NSec', 'Norton sec')
         norton_summary = tree.xpath('//div[@class="span10"]')[0]
-        result['summary'] = etree.tostring(norton_summary, method='html',
-                                           encoding='unicode')
+        result['summary'] = html.tostring(norton_summary, method='html',
+                                          encoding='unicode')
         norton_community = tree.xpath('//div[@class="community-text"]')[0]
-        result['community'] = etree.tostring(norton_community, method='html',
-                                             encoding='unicode')
+        result['community'] = html.tostring(norton_community, method='html',
+                                            encoding='unicode')
     except IndexError:
         result['summary'] = 'None'
+    print(time.time() - start)
     return result
 
 
