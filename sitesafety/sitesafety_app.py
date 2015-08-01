@@ -10,8 +10,8 @@ from urllib.parse import quote, urlparse
 from werkzeug.contrib.cache import FileSystemCache
 
 app = Flask(__name__)
-cache = FileSystemCache(os.path.join(app.root_path, 'cache'))
-yql_cache = FileSystemCache(os.path.join(app.root_path, 'yql_cache'))
+cache = FileSystemCache(os.path.join(app.root_path, '_cache'))
+yql_cache = FileSystemCache(os.path.join(app.root_path, '_yql_cache'))
 pool = GreenPool()
 
 
@@ -59,17 +59,21 @@ def parse_norton_sw(site):
         else:
             site_key = '.'.join(site.rsplit('.')[-2:])
             data = yql_cache.get(site_key)
-        if not data:
+        if not data or data == 'do not cache':
+            do_not_cache = True if data == 'do not cache' else False
             dct = json.loads(eventlet_request.urlopen(page).read().decode('utf-8'))
             data = dct['query']['results']['result']
-            if site_key and site[:4] != 'www.':
+            if site_key and site[:4] != 'www.' and not do_not_cache:
                 consider_cache = True
         tree = html.fromstring(data)
         norton_url = tree.xpath('//a[@class="nolink"]/@title', smart_strings=False)[0]
         result['url'] = norton_url
-        # cache HTML when Safe Web doesn't differentiate between subdomains
-        if consider_cache and norton_url.count('.') == 1:
-            yql_cache.set(site_key, data, timeout=43200)        # 12 hours
+        # cache HTML for 12 hours when Safe Web doesn't differentiate between subdomains
+        if consider_cache:
+            if norton_url.count('.') == 1:
+                yql_cache.set(site_key, data, timeout=43200)
+            else:
+                yql_cache.set(site_key, 'do not cache', timeout=43200)
         norton_ico = tree.xpath('//div[@class="big_rating_wrapper"]/img/@alt',
                                 smart_strings=False)[0]
         result['ico'] = norton_ico.replace('ico', '').replace('NSec', 'Norton sec')

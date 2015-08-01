@@ -78,13 +78,14 @@ class SiteTestCase(unittest.TestCase):
     def test_response_cache(self):
         self.assert_status_code_200('/check?site=www.nicovideo.jp')
         self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
-        self.assertEqual(len(os.listdir(os.path.join(self.root, 'cache'))), 1)
+        self.assertEqual(len(os.listdir(os.path.join(self.root, '_cache'))), 1)
     
     def test_yql_cache(self):
-        yql_cache_dir = os.path.join(self.root, 'yql_cache')
+        yql_cache_dir = os.path.join(self.root, '_yql_cache')
         self.assert_status_code_200('/check?site=translate.google.com')
+        self.assert_status_code_200('/check?site=blah.google.com')
         self.assert_status_code_200('/check?site=drive.google.com')
-        self.assertEqual(len(os.listdir(yql_cache_dir)), 0)
+        self.assertEqual(len(os.listdir(yql_cache_dir)), 1)
         self.yql_cache.clear()
         self.assert_status_code_200('/check?site=sitesafety.pythonanywhere.com')
         self.assert_status_code_200('/check?site=caesarcipher.pythonanywhere.com')
