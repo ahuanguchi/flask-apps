@@ -42,7 +42,7 @@ $.ajax({
       return;
     }
     result.ico = $data.find("div.big_rating_wrapper > img").eq(0).prop("alt").replace("ico", "").replace("NSec", "Norton Sec");
-    result.summary = $data.find("div.span10").eq(0).html();
+    result.summary = $data.find("div.span10").eq(0).html().replace(/<\/?b>/gi, "");
     if (!result.summary) {
       result.summary = "None";
       display(result);
