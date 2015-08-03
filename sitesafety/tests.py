@@ -30,9 +30,7 @@ class SiteTestCase(unittest.TestCase):
         sitesafety_app.app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
         cls.root = sitesafety_app.app.root_path
         cls.cache = sitesafety_app.cache
-        cls.yql_cache = sitesafety_app.yql_cache
         cls.cache.clear()
-        cls.yql_cache.clear()
         cls.pool = GreenPool()
     
     def setUp(self):
@@ -40,7 +38,6 @@ class SiteTestCase(unittest.TestCase):
     
     def tearDown(self):
         self.cache.clear()
-        self.yql_cache.clear()
     
     def test_request_index(self):
         page = self.get_and_assert_status_code('/', 200)
@@ -56,20 +53,19 @@ class SiteTestCase(unittest.TestCase):
         self.assertGreater(len([x for x in feedback]), 0)
     
     def test_valid_search(self):
-        self.assert_status_code_200('/check?site=youtube.com')
-        self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
-    
-    def test_strange_valid_search(self):
-        self.assert_status_code_200('/check?site=nicovideo.j')
+        urls = ('/check?site=youtube.com', '/check?site=http://www.nicovideo.jp/',
+                '/check?site=nicovideo.j')
+        for url in urls:
+            page = self.get_and_assert_status_code(url, 200)
+            self.assertIn('Results for', page)
     
     def test_invalid_search(self):
-        self.assert_status_code_200('/check?site=nico video.')
-        self.assert_status_code_200('/check?site=nicovideo')
-        self.assert_status_code_200('/check?site=n.i')
-    
-    def test_no_arguments(self):
-        self.assert_status_code_200('/check')
-        self.assert_status_code_200('/check?site=')
+        urls = ('/check?site=nico vi.deo', '/check?site=nicovideo',
+                '/check?site=n.i', '/check?site=.nicovideo.',
+                '/check', '/check?site=')
+        for url in urls:
+            page = self.get_and_assert_status_code(url, 200)
+            self.assertIn('class="warning"', page)
     
     def test_not_found(self):
         page = self.get_and_assert_status_code('/blah', 404)
@@ -79,19 +75,6 @@ class SiteTestCase(unittest.TestCase):
         self.assert_status_code_200('/check?site=www.nicovideo.jp')
         self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
         self.assertEqual(len(os.listdir(os.path.join(self.root, '_cache'))), 1)
-    
-    def test_yql_cache(self):
-        yql_cache_dir = os.path.join(self.root, '_yql_cache')
-        self.assert_status_code_200('/check?site=translate.google.com')
-        self.assert_status_code_200('/check?site=blah.google.com')
-        self.assert_status_code_200('/check?site=drive.google.com')
-        self.assertEqual(len(os.listdir(yql_cache_dir)), 1)
-        self.yql_cache.clear()
-        self.assert_status_code_200('/check?site=sitesafety.pythonanywhere.com')
-        self.assert_status_code_200('/check?site=caesarcipher.pythonanywhere.com')
-        self.assert_status_code_200('/check?site=pythonanywhere.com')
-        self.assert_status_code_200('/check?site=www.pythonanywhere.com')
-        self.assertEqual(len(os.listdir(yql_cache_dir)), 1)
 
 
 if __name__ == '__main__':

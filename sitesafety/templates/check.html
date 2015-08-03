@@ -17,28 +17,17 @@
     </div>
     <hr>
     <div id="norton-safe-web">
-      <h3><a href="{{ sw.page }}" target="_blank">Norton Safe Web &ndash; {{ sw.url }}</a></h3>
+      <h3 id="sw-page"></h3>
       <h4><p>Rating:</p></h4>
-      <blockquote>{{ sw.ico }}</blockquote>
+      <blockquote id="sw-ico">Loading...</blockquote>
       <h4><p>Summary:</p></h4>
-      <blockquote>
-        {{ sw.summary|safe }}
-        {% if sw.summary == 'None' and sw.ico != 'Untested' %}
-          &ndash; If this was caused by rate limiting, you can click on the link above to visit Norton's report manually.
-        {% endif %}
-      </blockquote>
+      <blockquote id="sw-summary">Loading...</blockquote>
       <h4><p>Community rating (out of 5):</p></h4>
-      <blockquote>
-        {% if '0.0' not in sw.community %}
-          {{ sw.community|safe }}
-        {% else %}
-          Not yet rated
-        {% endif %}
-        {% if sw.summary != 'None' %}
-          <p><a href="http://safeweb.norton.com/reviews?url={{ sw.url|urlencode }}" target="_blank">View community reviews</a></p>
-        {% endif %}
-      </blockquote>
+      <blockquote id="sw-community">Loading...</blockquote>
     </div>
     <hr>
   </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script>var site = "{{ site|safe }}";</script>
+  <script src="{{ url_for('static', filename='parse.js') }}?v=0"></script>
 {% endblock %}
