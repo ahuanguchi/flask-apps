@@ -53,7 +53,7 @@ def check():
         domain = urlparse('//' + site).netloc
     response_data = cache.get(domain)
     if not response_data:
-        sb = parse_google_sb(site);
+        sb = parse_google_sb(domain);
         response_data = render_template('check.html', domain=domain, site=site, sb=sb)
         # cache response for 12 hours
         cache.set(domain, response_data, timeout=43200)

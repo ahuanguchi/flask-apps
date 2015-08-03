@@ -75,6 +75,11 @@ class SiteTestCase(unittest.TestCase):
         self.assert_status_code_200('/check?site=www.nicovideo.jp')
         self.assert_status_code_200('/check?site=http://www.nicovideo.jp/')
         self.assertEqual(len(os.listdir(os.path.join(self.root, '_cache'))), 1)
+    
+    def test_cache_without_path(self):
+        self.assert_status_code_200('/check?site=http://www.nicovideo.jp/user/16253346')
+        page = self.get_and_assert_status_code('/check?site=www.nicovideo.jp', 200)
+        self.assertNotIn('nicovideo.jp/user</a>', page)
 
 
 if __name__ == '__main__':

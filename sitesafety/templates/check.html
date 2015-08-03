@@ -6,23 +6,23 @@
     <hr>
     <div id="google-safe-browsing">
       <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing &ndash; {{ sb.url }}</a></h3>
-      <h4><p>Status listing:</p></h4>
+      <h4>Status listing:</h4>
       {{ sb.status|safe }}
-      <h4><p>Google's summary:</p></h4>
+      <h4>Google's summary:</h4>
       {{ sb.summary|safe }}
-      <h4><p>Distributed malware?</p></h4>
+      <h4>Distributed malware?</h4>
       {{ sb.intermediary|safe }}
-      <h4><p>Hosted malware?</p></h4>
+      <h4>Hosted malware?</h4>
       {{ sb.hosted|safe }}
     </div>
     <hr>
     <div id="norton-safe-web">
       <h3 id="sw-page"></h3>
-      <h4><p>Rating:</p></h4>
+      <h4>Rating:</h4>
       <blockquote id="sw-ico">Loading...</blockquote>
-      <h4><p>Summary:</p></h4>
+      <h4>Summary:</h4>
       <blockquote id="sw-summary">Loading...</blockquote>
-      <h4><p>Community rating (out of 5):</p></h4>
+      <h4>Community rating (out of 5):</h4>
       <blockquote id="sw-community">Loading...</blockquote>
     </div>
     <hr>
