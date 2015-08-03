@@ -32,7 +32,7 @@ $.ajax({
     env: "store://datatables.org/alltableswithkeys"
   },
   success: function (response) {
-    var $data = $(response.query.results.result.replace(/src=/gi, "null="));
+    var $data = $(response.query.results.result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/src=/gi, "null="));
     var result = {};
     result.page = "http://safeweb.norton.com/report/show?url=" + encodeURIComponent(site);
     result.url = $data.find("a.nolink").eq(0).prop("title");
@@ -41,7 +41,7 @@ $.ajax({
       display(result);
       return;
     }
-    result.ico = $data.find("div.big_rating_wrapper > img").eq(0).prop("alt").replace("ico", "").replace("NSec", "Norton sec");
+    result.ico = $data.find("div.big_rating_wrapper > img").eq(0).prop("alt").replace("ico", "").replace("NSec", "Norton Sec");
     result.summary = $data.find("div.span10").eq(0).html();
     if (!result.summary) {
       result.summary = "None";
