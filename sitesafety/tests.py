@@ -54,7 +54,7 @@ class SiteTestCase(unittest.TestCase):
     
     def test_valid_search(self):
         urls = ('/check?site=youtube.com', '/check?site=http://www.nicovideo.jp/',
-                '/check?site=nicovideo.j')
+                '/check?site=nicovideo.j', '/check?site= python.org ')
         for url in urls:
             page = self.get_and_assert_status_code(url, 200)
             self.assertIn('Results for', page)
