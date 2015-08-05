@@ -1,7 +1,7 @@
 import os
 import unittest
 from eventlet import GreenPool
-from eventlet.green.urllib import request as eventlet_request
+from eventlet.green.urllib.request import urlopen
 from lxml import html
 
 import sitesafety_app
@@ -20,7 +20,7 @@ class SiteTestCase(unittest.TestCase):
         return data
     
     def external_assert_status_code_200(self, url):
-        with eventlet_request.urlopen(url) as resp:
+        with urlopen(url) as resp:
             self.assertEqual(resp.getcode(), 200)
         return True
     
@@ -62,7 +62,7 @@ class SiteTestCase(unittest.TestCase):
     def test_invalid_search(self):
         urls = ('/check?site=nico vi.deo', '/check?site=nicovideo',
                 '/check?site=n.i', '/check?site=.nicovideo.',
-                '/check', '/check?site=')
+                '/check', '/check?site=', r'/check?site=nicovdieo.jp\user')
         for url in urls:
             page = self.get_and_assert_status_code(url, 200)
             self.assertIn('class="warning"', page)
