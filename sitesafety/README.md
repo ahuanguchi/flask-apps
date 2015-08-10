@@ -1,1 +1,1 @@
-Hosted on PythonAnywhere: http://sitesafety.pythonanywhere.com
+Hosted on PythonAnywhere: <http://sitesafety.pythonanywhere.com>

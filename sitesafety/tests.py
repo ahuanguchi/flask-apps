@@ -50,7 +50,7 @@ class SiteTestCase(unittest.TestCase):
             else:
                 external_links.append(link)
         feedback = self.pool.imap(self.external_assert_status_code_200, external_links)
-        self.assertGreater(len([x for x in feedback]), 0)
+        self.assertEqual(len([x for x in feedback if x]), len(external_links))
     
     def test_valid_search(self):
         urls = ('/check?site=youtube.com', '/check?site=http://www.nicovideo.jp/',
