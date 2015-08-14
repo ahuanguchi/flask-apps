@@ -51,7 +51,10 @@ def check():
         return render_template('index.html', warning=True)
     domain = urlparse(site).netloc
     if not domain:
-        domain = urlparse('//' + site).netloc
+        site_with_protocol = '//' + site if not site[0] == '/' else '/' + site
+        domain = urlparse(site_with_protocol).netloc
+        if not domain:
+            return render_template('index.html', warning=True)
     response_data = cache.get(domain)
     if not response_data:
         sb = parse_google_sb(domain);

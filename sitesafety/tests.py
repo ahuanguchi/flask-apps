@@ -53,16 +53,28 @@ class SiteTestCase(unittest.TestCase):
         self.assertEqual(len([x for x in feedback if x]), len(external_links))
     
     def test_valid_search(self):
-        urls = ('/check?site=youtube.com', '/check?site=http://www.nicovideo.jp/',
-                '/check?site=nicovideo.j', '/check?site= python.org ')
+        urls = (
+            '/check?site=youtube.com',
+            '/check?site=http://www.nicovideo.jp/',
+            '/check?site=nicovideo.j',
+            '/check?site= python.org ',
+            '/check?site=/google.com',
+        )
         for url in urls:
             page = self.get_and_assert_status_code(url, 200)
             self.assertIn('Results for', page)
     
     def test_invalid_search(self):
-        urls = ('/check?site=nico vi.deo', '/check?site=nicovideo',
-                '/check?site=n.i', '/check?site=.nicovideo.',
-                '/check', '/check?site=', r'/check?site=nicovdieo.jp\user')
+        urls = (
+            '/check?site=nico vi.deo',
+            '/check?site=nicovideo',
+            '/check?site=n.i',
+            '/check?site=.nicovideo.',
+            '/check',
+            '/check?site=',
+            r'/check?site=nicovideo.jp\user',
+            '/check?site=///nicovideo.jp',
+        )
         for url in urls:
             page = self.get_and_assert_status_code(url, 200)
             self.assertIn('class="warning"', page)
