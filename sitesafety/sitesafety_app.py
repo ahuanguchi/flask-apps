@@ -17,22 +17,22 @@ def fix_link(href):
 
 
 def parse_google_sb(site):
-    url = 'https://www.google.com/safebrowsing/diagnostic?site='
+    base = 'https://www.google.com/transparencyreport/safebrowsing/diagnostic/index.html#url='  # previously 'https://www.google.com/safebrowsing/diagnostic?site='
     query = quote(site, safe='')
-    page = url + query
-    data = requests.get(page).text
-    tree = html.fromstring(data)
-    tree.rewrite_links(fix_link, False)
-    url = tree.xpath('//h3/text()', smart_strings=False)[0].rsplit(' ', 1)[1]
-    blockquotes = [html.tostring(x, encoding='unicode')
-                   for x in tree.xpath('//blockquote')]
+    page = base + query
+    # data = requests.get(page).text
+    # tree = html.fromstring(data)
+    # tree.rewrite_links(fix_link, False)
+    # url = tree.xpath('//h3/text()', smart_strings=False)[0].rsplit(' ', 1)[1]
+    # blockquotes = [html.tostring(x, encoding='unicode')
+                   # for x in tree.xpath('//blockquote')]
     result = {
         'page': page,
-        'url': url,
-        'status': blockquotes[0],
-        'summary': blockquotes[1],
-        'intermediary': blockquotes[2],
-        'hosted': blockquotes[3]
+        # 'url': url,
+        # 'status': blockquotes[0],
+        # 'summary': blockquotes[1],
+        # 'intermediary': blockquotes[2],
+        # 'hosted': blockquotes[3]
     }
     return result
 
@@ -60,7 +60,7 @@ def check():
         sb = parse_google_sb(domain);
         response_data = render_template('check.html', domain=domain, sb=sb)
         # cache response for 12 hours
-        cache.set(domain, response_data, timeout=43200)
+        # cache.set(domain, response_data, timeout=43200)
     return response_data
 
 
