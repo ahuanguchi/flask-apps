@@ -1,7 +1,9 @@
+import json
 import os
 import requests
+from datetime import datetime
 from flask import Flask, render_template, request
-from lxml import html
+# from lxml import html
 from socket import gethostname
 from urllib.parse import quote, urlparse
 from werkzeug.contrib.cache import FileSystemCache
@@ -10,30 +12,78 @@ app = Flask(__name__)
 cache = FileSystemCache(os.path.join(app.root_path, '_cache'))
 
 
-def fix_link(href):
-    if '?' not in href:
-        return href
-    return '/check?' + href.split('?')[1]
+def parse_date(timestamp):
+    return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d')
+
+
+# def fix_link(href):
+    # if '?' not in href:
+        # return href
+    # return '/check?' + href.split('?')[1]
 
 
 def parse_google_sb(site):
     base = 'https://www.google.com/transparencyreport/safebrowsing/diagnostic/index.html#url='  # previously 'https://www.google.com/safebrowsing/diagnostic?site='
     query = quote(site, safe='')
     page = base + query
+    resp_url = 'https://www.google.com/safebrowsing/diagnostic?output=jsonp&site=' + query
+    resp = requests.get(resp_url).text
+    resp_str = resp.split('processResponse(')[1].split(');')[0]
+    resp_obj = json.loads(resp_str)
+    url = resp_obj['website'].get('name')
+    num_tested = resp_obj.get('numTested')
+    if num_tested:
+        status_set = set()
+        for k in resp_obj['website'].keys():
+            if k[-6:] == 'Status':
+                status_set.add(resp_obj['website'].get(k))
+        if 'listed' in status_set:
+            status = 'Dangerous'
+        elif 'partial' in status_set:
+            status = 'Partially dangerous'
+        else:
+            status = 'Not dangerous'
+        last_mal_int = resp_obj.get('lastMaliciousDate')
+        if last_mal_int:
+            last_mal = parse_date(last_mal_int)
+        else:
+            last_mal = 'No malicious content found recently'
+        last_update = parse_date(resp_obj.get('dataUpdatedDate'))
+        sent_from = resp_obj['website']['malwareSite'].get('receivesTrafficFrom')
+        attack = resp_obj['website']['malwareSite'].get('sendsToAttackSites')
+        intermediary = resp_obj['website']['malwareSite'].get('sendsToIntermediarySites')
+        result = {
+            'page': page,
+            'resp_url': resp_url,
+            'url': url,
+            'num_tested': num_tested,
+            'status': status,
+            'last_mal': last_mal,
+            'last_update': last_update,
+            'sent_from': sent_from,
+            'sent_to': attack + intermediary,
+        }
+    else:
+        result = {
+            'page': page,
+            'resp_url': resp_url,
+            'url': url,
+            'num_tested': num_tested,
+        }
     # data = requests.get(page).text
     # tree = html.fromstring(data)
     # tree.rewrite_links(fix_link, False)
     # url = tree.xpath('//h3/text()', smart_strings=False)[0].rsplit(' ', 1)[1]
     # blockquotes = [html.tostring(x, encoding='unicode')
                    # for x in tree.xpath('//blockquote')]
-    result = {
-        'page': page,
+    # result = {
+        # 'page': page,
         # 'url': url,
         # 'status': blockquotes[0],
         # 'summary': blockquotes[1],
         # 'intermediary': blockquotes[2],
         # 'hosted': blockquotes[3]
-    }
+    # }
     return result
 
 

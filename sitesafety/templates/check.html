@@ -3,24 +3,56 @@
 {% block results %}
   <div id="results">
     <h2 class="centered extraspaced">Results for {{ domain }}</h2>
-    <p class="centered">Note: All links in the results lead to other summary pages, not the original sites.</p>
-    <hr>
-    <div id="norton-safe-web">
-      <h3 id="sw-page"></h3>
-      <h4>Rating:</h4>
-      <blockquote id="sw-ico">Loading...</blockquote>
-      <h4>Summary:</h4>
-      <blockquote id="sw-summary">Loading...</blockquote>
-      <h4>Community rating (out of 5):</h4>
-      <blockquote id="sw-community">Loading...</blockquote>
-    </div>
+    <!-- <p class="centered">Note: All links in the results lead to other summary pages, not the original sites.</p> -->
     <hr>
     <div id="google-safe-browsing">
+      <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing &ndash; {{ sb.url }}</a></h3>
+      {% if sb.num_tested %}
+        <h4>Status:</h4>
+        <blockquote>{{ sb.status }}</blockquote>
+        <h4>Last date malicious content was found:</h4>
+        <blockquote>{{ sb.last_mal }}</blockquote>
+        <h4>Last date info about this site was updated:</h4>
+        <blockquote>
+          <p>{{ sb.last_update }}<p>
+          <p><a href="{{ sb.resp_url }}" target="_blank">Download full raw data</a></p>
+        </blockquote>
+        <h4>Number of pages tested:</h4>
+        <blockquote>{{ sb.num_tested }}</blockquote>
+        <h4>Dangerous sites that pages on this site have been sending visitors to:</h4>
+        <blockquote>
+          {% if sb.sent_to %}
+            <ul>
+              {% for site in sb.sent_to %}
+                <li>{{ site }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            N/A
+          {% endif %}
+        </blockquote>
+        <h4>Dangerous sites that have been sending visitors to this site:</h4>
+        <blockquote>
+          {% if sb.sent_from %}
+            <ul>
+              {% for site in sb.sent_from %}
+                <li>{{ site }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            N/A
+          {% endif %}
+        </blockquote>
+      {% else %}
+        <p>No available data</p>
+      {% endif %}
+<!--
       <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing</a></h3>
       <iframe src="{{ sb.page }}"><p>Your browser does not support iframes.</p></iframe>
       <blockquote>
         <p>(Results are now displayed in an iframe because of dynamically loaded content.)</p>
       </blockquote>
+-->
 <!--
       <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing &ndash; {{ sb.url }}</a></h3>
       <h4>Google's summary:</h4>
@@ -30,6 +62,16 @@
       <h4>Hosted malware?</h4>
       {{ sb.hosted|safe }}
 -->
+    </div>
+    <hr>
+    <div id="norton-safe-web">
+      <h3 id="sw-page"></h3>
+      <h4>Rating:</h4>
+      <blockquote id="sw-ico">Loading...</blockquote>
+      <h4>Summary:</h4>
+      <blockquote id="sw-summary">Loading...</blockquote>
+      <h4>Community rating (out of 5):</h4>
+      <blockquote id="sw-community">Loading...</blockquote>
     </div>
     <hr>
   </div>
