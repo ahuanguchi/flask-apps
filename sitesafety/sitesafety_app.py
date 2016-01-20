@@ -47,7 +47,7 @@ def parse_google_sb(site):
         if last_mal_int:
             last_mal = parse_date(last_mal_int)
         else:
-            last_mal = 'No malicious content found recently'
+            last_mal = 'N/A'
         last_update = parse_date(resp_obj.get('dataUpdatedDate'))
         sent_from = resp_obj['website']['malwareSite'].get('receivesTrafficFrom')
         attack = resp_obj['website']['malwareSite'].get('sendsToAttackSites')
