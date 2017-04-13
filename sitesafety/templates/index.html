@@ -8,7 +8,7 @@
       <h1>Site Safety Checker</h1>
       <p>Get a single-page summary of a website's safety from Google Safe Browsing and Norton Safe Web.</p>
       {% if warning %}
-        <p class="warning">Please enter a URL that can be processed by both Google Safe Browsing and Norton Safe Web.<p>
+        <p class="warning">Please enter a URL that can be processed by both Google Safe Browsing and Norton Safe Web.</p>
       {% endif %}
       <form action="{{ url_for('check') }}" class="pure-form" id="mainform" novalidate>
         <input type="url" name="site" placeholder="URL" autofocus autocorrect="off" autocapitalize="none" spellcheck="false">
