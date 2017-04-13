@@ -10,4 +10,4 @@
       results.innerHTML = "";
     }
   });
-}());
+})();
