@@ -3,7 +3,6 @@ import os
 import requests
 from datetime import datetime
 from flask import Flask, render_template, request
-# from lxml import html
 from socket import gethostname
 from urllib.parse import quote, urlparse
 from werkzeug.contrib.cache import FileSystemCache
@@ -14,12 +13,6 @@ cache = FileSystemCache(os.path.join(app.root_path, '_cache'))
 
 def parse_date(timestamp):
     return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d')
-
-
-# def fix_link(href):
-    # if '?' not in href:
-        # return href
-    # return '/check?' + href.split('?')[1]
 
 
 def parse_google_sb(site):
@@ -70,20 +63,6 @@ def parse_google_sb(site):
             'url': url,
             'num_tested': num_tested,
         }
-    # data = requests.get(page).text
-    # tree = html.fromstring(data)
-    # tree.rewrite_links(fix_link, False)
-    # url = tree.xpath('//h3/text()', smart_strings=False)[0].rsplit(' ', 1)[1]
-    # blockquotes = [html.tostring(x, encoding='unicode')
-                   # for x in tree.xpath('//blockquote')]
-    # result = {
-        # 'page': page,
-        # 'url': url,
-        # 'status': blockquotes[0],
-        # 'summary': blockquotes[1],
-        # 'intermediary': blockquotes[2],
-        # 'hosted': blockquotes[3]
-    # }
     return result
 
 

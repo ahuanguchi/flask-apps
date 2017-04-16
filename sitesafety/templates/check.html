@@ -3,7 +3,6 @@
 {% block results %}
   <div id="results">
     <h2 class="centered extraspaced">Results for {{ domain }}</h2>
-    <!-- <p class="centered">Note: All links in the results lead to other summary pages, not the original sites.</p> -->
     <hr>
     <div id="google-safe-browsing">
       <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing &ndash; {{ sb.url }}</a></h3>
@@ -46,22 +45,6 @@
       {% else %}
         <p>No available data</p>
       {% endif %}
-<!--
-      <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing</a></h3>
-      <iframe src="{{ sb.page }}"><p>Your browser does not support iframes.</p></iframe>
-      <blockquote>
-        <p>(Results are now displayed in an iframe because of dynamically loaded content.)</p>
-      </blockquote>
--->
-<!--
-      <h3><a href="{{ sb.page }}" target="_blank">Google Safe Browsing &ndash; {{ sb.url }}</a></h3>
-      <h4>Google's summary:</h4>
-      {{ sb.summary|safe }}
-      <h4>Distributed malware?</h4>
-      {{ sb.intermediary|safe }}
-      <h4>Hosted malware?</h4>
-      {{ sb.hosted|safe }}
--->
     </div>
     <hr>
     <div id="norton-safe-web">
