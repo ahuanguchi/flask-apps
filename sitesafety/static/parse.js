@@ -1,4 +1,8 @@
+/* globals $ */
+
 (function () {
+  "use strict";
+  
   function display(sw) {
     var communityBlock;
     $("#sw-page").html("<a href=\"" + sw.page + "\" target=\"_blank\">Norton Safe Web &ndash; " + sw.url + "</a>");
@@ -28,14 +32,14 @@
     jsonp: "callback",
     dataType: "jsonp",
     data: {
-      q: "select * from htmlstring where url=\"http://safeweb.norton.com/report/show?url=" + domain + "\"",
+      q: "select * from htmlstring where url=\"http://safeweb.norton.com/report/show?url=" + window.domain + "\"",
       format: "json",
       env: "store://datatables.org/alltableswithkeys"
     },
     success: function (response) {
       var $data = $(response.query.results.result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/src=/gi, "src-null="));
       var result = {};
-      result.page = "http://safeweb.norton.com/report/show?url=" + encodeURIComponent(domain);
+      result.page = "http://safeweb.norton.com/report/show?url=" + encodeURIComponent(window.domain);
       result.url = $data.find("a.nolink").eq(0).prop("title");
       if (!result.url) {
         result.summary = "None &ndash; If this was caused by rate limiting, you can click on the link above to visit Norton's report manually.";
