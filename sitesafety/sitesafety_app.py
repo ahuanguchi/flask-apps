@@ -66,6 +66,10 @@ def parse_google_sb(site):
     return result
 
 
+def index_with_warning():
+    return render_template('index.html', warning=True)
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -77,13 +81,15 @@ def check():
     if site:
         site = site.strip()
     if not site or '.' not in site[1:-1] or ' ' in site or '\\' in site or len(site) < 4:
-        return render_template('index.html', warning=True)
+        return index_with_warning()
     domain = urlparse(site).netloc
     if not domain:
         site_with_protocol = '//' + site if not site[0] == '/' else '/' + site
         domain = urlparse(site_with_protocol).netloc
         if not domain:
-            return render_template('index.html', warning=True)
+            return index_with_warning()
+    if ':' in domain:
+        return index_with_warning()
     response_data = cache.get(domain)
     if not response_data:
         sb = parse_google_sb(domain);

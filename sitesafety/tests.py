@@ -62,7 +62,7 @@ class SiteTestCase(unittest.TestCase):
         )
         for url in urls:
             page = self.get_and_assert_status_code(url, 200)
-            self.assertIn('Results for', page)
+            self.assertIn('Results for', page, url)
     
     def test_invalid_search(self):
         urls = (
@@ -74,10 +74,11 @@ class SiteTestCase(unittest.TestCase):
             '/check?site=',
             r'/check?site=nicovideo.jp\user',
             '/check?site=///nicovideo.jp',
+            '/check?site=/nicovideo.jp:80'
         )
         for url in urls:
             page = self.get_and_assert_status_code(url, 200)
-            self.assertIn('class="warning"', page)
+            self.assertIn('class="warning"', page, url)
     
     def test_not_found(self):
         page = self.get_and_assert_status_code('/blah', 404)
