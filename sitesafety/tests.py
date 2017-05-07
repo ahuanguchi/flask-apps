@@ -74,7 +74,7 @@ class SiteTestCase(unittest.TestCase):
             '/check?site=',
             r'/check?site=nicovideo.jp\user',
             '/check?site=///nicovideo.jp',
-            '/check?site=/nicovideo.jp:80'
+            '/check?site=/nicovideo.jp:80',
         )
         for url in urls:
             page = self.get_and_assert_status_code(url, 200)
