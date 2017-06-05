@@ -32,12 +32,12 @@
     jsonp: "callback",
     dataType: "jsonp",
     data: {
-      q: "select * from htmlstring where url=\"http://safeweb.norton.com/report/show?url=" + window.domain + "\"",
+      q: "select * from htmlstring where url='http://safeweb.norton.com/report/show?url=" + window.domain + "' and xpath='//div[@id=\"wrap\"]'",
       format: "json",
       env: "store://datatables.org/alltableswithkeys"
     },
     success: function (response) {
-      var $data = $(response.query.results.result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/src=/gi, "src-null="));
+      var $data = $(response.query.results.result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/src=\S+?/gi, "src=''"));
       var result = {};
       result.page = "http://safeweb.norton.com/report/show?url=" + encodeURIComponent(window.domain);
       result.url = $data.find("a.nolink").eq(0).prop("title");
