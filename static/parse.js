@@ -37,7 +37,7 @@
       env: "store://datatables.org/alltableswithkeys"
     },
     success: function (response) {
-      var $data = $(response.query.results.result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/src=\S+?/gi, "src=''"));
+      var $data = $(response.query.results.result.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/src=['"].+?['"]/gi, "src=''"));
       var result = {};
       result.page = "http://safeweb.norton.com/report/show?url=" + encodeURIComponent(window.domain);
       result.url = $data.find("a.nolink").eq(0).prop("title");
